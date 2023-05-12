@@ -9,6 +9,8 @@ RUN gem install rails webdrivers
 # The value is a comma-separated list of allowed domains 
 ENV RAILS_DEVELOPMENT_HOSTS=".githubpreview.dev,.preview.app.github.dev"
 
+WORKDIR /workspace
+
 # [Choice] Node.js version: lts/*, 16, 14, 12, 10
 # ARG NODE_VERSION="none"
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
