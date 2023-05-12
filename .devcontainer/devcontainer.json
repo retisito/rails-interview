@@ -7,7 +7,9 @@
   },
 
   // Set the workspace folder
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspace",
+    
+  "workspaceMount": "source=/home/coder/workspace,target=/workspace,type=bind",
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {},
