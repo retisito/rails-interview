@@ -28,6 +28,6 @@ To run tests:
 
 ## About Crunchloop
 
-![crunchloop](https://crunchloop.io/logo-blue.png)
+![crunchloop](https://s3.amazonaws.com/crunchloop.io/logo-blue.png)
 
 We strongly believe in giving back :rocket:. Let's work together [`Get in touch`](https://crunchloop.io/#contact).
