@@ -22,6 +22,8 @@ To run tests:
 
 `bin/rspec`
 
+Check integration tests at: (https://github.com/crunchloop/interview-tests)
+
 ## Contact
 
 - Santiago Doldán (sdoldan@crunchloop.io)
