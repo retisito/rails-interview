@@ -1,0 +1,240 @@
+<div id="progress-container" data-controller="progress" class="mb-4 progress-enhanced">
+  <% case status %>
+  <% when 'processing' %>
+    <div class="card border-0 shadow-lg progress-card">
+      <div class="card-header bg-gradient-primary text-white position-relative overflow-hidden">
+        <div class="processing-shimmer"></div>
+        <h5 class="mb-0 position-relative">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="d-flex align-items-center">
+              <div class="processing-icon me-3">
+                <i class="bi bi-cpu-fill"></i>
+              </div>
+              <div>
+                <strong>Procesamiento en Curso</strong>
+                <br>
+                <small class="opacity-75">Alta carga computacional</small>
+              </div>
+            </span>
+            <div class="badge-container">
+              <span class="badge bg-light text-primary fs-6 px-3 py-2">
+                <i class="bi bi-clock me-1"></i>
+                <%= current_item %>/<%= total_items %>
+              </span>
+            </div>
+          </div>
+        </h5>
+      </div>
+      <div class="card-body p-4 bg-light">
+        <!-- Barra de progreso mejorada -->
+        <div class="progress-enhanced-container mb-4">
+          <div class="progress progress-enhanced-bar" style="height: 35px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-gradient-primary progress-glow" 
+                 role="progressbar" 
+                 style="width: <%= percentage %>%"
+                 aria-valuenow="<%= percentage %>" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100"
+                 data-progress-target="bar">
+              <span class="progress-text fw-bold fs-5" data-progress-target="percentage">
+                <%= percentage %>%
+              </span>
+            </div>
+          </div>
+          <!-- Indicadores de progreso -->
+          <div class="progress-indicators mt-2">
+            <% (1..4).each do |step| %>
+              <div class="indicator <%= 'active' if percentage >= (step * 25) %>">
+                <div class="indicator-dot"></div>
+                <small class="indicator-label"><%= step * 25 %>%</small>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Mensaje de estado mejorado -->
+        <div class="status-message-container">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <div class="status-pulse me-3"></div>
+              <div>
+                <strong class="text-primary" data-progress-target="message"><%= message %></strong>
+                <br>
+                <small class="text-muted">
+                  <i class="bi bi-lightning-charge me-1"></i>
+                  Procesando con alta carga computacional...
+                </small>
+              </div>
+            </div>
+            <div class="performance-meter">
+              <div class="cpu-usage">
+                <div class="usage-bar"></div>
+                <div class="usage-bar"></div>
+                <div class="usage-bar"></div>
+                <div class="usage-bar"></div>
+              </div>
+              <small class="text-muted">CPU</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% when 'completed' %>
+    <div class="card border-0 shadow-lg progress-card completed">
+      <div class="card-header bg-gradient-success text-white position-relative overflow-hidden">
+        <div class="success-particles"></div>
+        <h4 class="mb-0 position-relative">
+          <div class="d-flex align-items-center justify-content-center">
+            <div class="success-icon me-3">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="text-center">
+              <strong>¡Proceso Completado Exitosamente!</strong>
+              <br>
+              <small class="opacity-75">Todas las tareas han sido procesadas</small>
+            </div>
+          </div>
+        </h4>
+      </div>
+      <div class="card-body p-4">
+        <!-- Barra de progreso completada -->
+        <div class="progress-enhanced-container mb-4">
+          <div class="progress progress-enhanced-bar" style="height: 35px;">
+            <div class="progress-bar bg-gradient-success progress-complete-glow" 
+                 role="progressbar" 
+                 style="width: 100%"
+                 aria-valuenow="100" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+              <span class="progress-text fw-bold fs-5">
+                <i class="bi bi-check-lg me-1"></i>
+                100% Completado
+              </span>
+            </div>
+          </div>
+          <!-- Indicadores todos activos -->
+          <div class="progress-indicators mt-2">
+            <% (1..4).each do |step| %>
+              <div class="indicator active completed">
+                <div class="indicator-dot">
+                  <i class="bi bi-check"></i>
+                </div>
+                <small class="indicator-label"><%= step * 25 %>%</small>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="completion-message">
+          <div class="alert alert-success border-0 mb-4">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-trophy-fill me-3 fs-3 text-warning"></i>
+              <div>
+                <strong><%= message %></strong>
+                <br>
+                <small>Proceso ejecutado con éxito en background</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="d-flex gap-3 justify-content-center">
+          <button type="button" 
+                  class="btn btn-outline-success btn-lg"
+                  onclick="window.location.reload();">
+            <i class="bi bi-arrow-repeat me-2"></i>Reiniciar Proceso
+          </button>
+          <button type="button" 
+                  class="btn btn-success btn-lg"
+                  onclick="window.location.reload();">
+            <i class="bi bi-eye me-2"></i>Ver Resultados
+          </button>
+        </div>
+      </div>
+    </div>
+
+  <% when 'error' %>
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Error en el Procesamiento
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="progress mb-3" style="height: 25px;">
+          <div class="progress-bar bg-danger" 
+               role="progressbar" 
+               style="width: 0%"
+               aria-valuenow="0" 
+               aria-valuemin="0" 
+               aria-valuemax="100">
+            0%
+          </div>
+        </div>
+        
+        <div class="alert alert-danger mb-0">
+          <i class="bi bi-x-lg me-2"></i>
+          <%= message %>
+        </div>
+        
+        <div class="mt-3">
+          <%= button_to "Reintentar", 
+              "#", 
+              method: :post,
+              class: "btn btn-outline-danger",
+              onclick: "window.location.reload(); return false;" %>
+        </div>
+      </div>
+    </div>
+
+  <% else %>
+    <!-- Estado inicial - sin progreso -->
+    <div class="card border-secondary">
+      <div class="card-header bg-light">
+        <h6 class="mb-0">
+          <i class="bi bi-play-circle me-2"></i>
+          Listo para Procesamiento
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="progress mb-3" style="height: 25px;">
+          <div class="progress-bar bg-secondary" 
+               role="progressbar" 
+               style="width: 0%"
+               aria-valuenow="0" 
+               aria-valuemin="0" 
+               aria-valuemax="100">
+            0%
+          </div>
+        </div>
+        
+        <p class="text-muted mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          Haz clic en "Iniciar Procesamiento" para comenzar...
+        </p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .spin {
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+  }
+  
+  @keyframes progress-bar-stripes {
+    0% { background-position: 1rem 0; }
+    100% { background-position: 0 0; }
+  }
+</style>

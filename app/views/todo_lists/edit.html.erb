@@ -1,0 +1,67 @@
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-header bg-warning text-dark">
+        <h4 class="mb-0">
+          <i class="bi bi-pencil me-2"></i>
+          Editar Lista de Tareas
+        </h4>
+      </div>
+      <div class="card-body">
+        <%= form_with model: @todo_list, local: true do |form| %>
+          <% if @todo_list.errors.any? %>
+            <div class="alert alert-danger">
+              <h6>Se encontraron <%= pluralize(@todo_list.errors.count, "error") %>:</h6>
+              <ul class="mb-0">
+                <% @todo_list.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= form.label :name, "Nombre de la Lista", class: "form-label" %>
+            <%= form.text_field :name, 
+                class: "form-control #{'is-invalid' if @todo_list.errors[:name].any?}",
+                required: true %>
+            <% if @todo_list.errors[:name].any? %>
+              <div class="invalid-feedback">
+                <%= @todo_list.errors[:name].first %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <%= link_to @todo_list, class: "btn btn-secondary" do %>
+              <i class="bi bi-arrow-left me-1"></i>Cancelar
+            <% end %>
+            <%= form.submit "Actualizar Lista", class: "btn btn-warning" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card mt-4 border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Zona de Peligro
+        </h6>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          Una vez que elimines esta lista, no podrás recuperarla. Esta acción también eliminará todas las tareas asociadas.
+        </p>
+        <%= link_to @todo_list, 
+            method: :delete,
+            class: "btn btn-danger",
+            confirm: "¿Estás completamente seguro? Esta acción no se puede deshacer.",
+            data: { "turbo-method": :delete } do %>
+          <i class="bi bi-trash me-1"></i>Eliminar Lista Permanentemente
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

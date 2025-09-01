@@ -1,0 +1,72 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h2">
+      <i class="bi bi-pencil text-warning me-2"></i>
+      Editar Tarea
+    </h1>
+    <p class="text-muted mb-0">
+      <i class="bi bi-folder me-1"></i>
+      Lista: <%= @todo_list.name %>
+    </p>
+  </div>
+  <div>
+    <%= link_to @todo_list, class: "btn btn-secondary" do %>
+      <i class="bi bi-arrow-left me-1"></i>Volver a la Lista
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header bg-warning text-dark">
+    <h5 class="mb-0">
+      <i class="bi bi-pencil me-2"></i>
+      Modificar Tarea
+    </h5>
+  </div>
+  <div class="card-body">
+    <%= form_with model: [@todo_list, @todo_item], local: true, class: "row g-3" do |form| %>
+      <% if @todo_item.errors.any? %>
+        <div class="col-12">
+          <div class="alert alert-danger">
+            <h4><%= pluralize(@todo_item.errors.count, "error") %> prohibited this task from being saved:</h4>
+            <ul class="mb-0">
+              <% @todo_item.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="col-12">
+        <%= form.label :description, "Descripción de la tarea", class: "form-label" %>
+        <%= form.text_area :description, 
+            class: "form-control",
+            rows: 3,
+            required: true %>
+        <div class="form-text">
+          <i class="bi bi-info-circle me-1"></i>
+          Modifica la descripción de tu tarea.
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check">
+          <%= form.check_box :completed, class: "form-check-input" %>
+          <%= form.label :completed, "Tarea completada", class: "form-check-label" %>
+        </div>
+      </div>
+      
+      <div class="col-12">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <%= link_to @todo_list, class: "btn btn-outline-secondary me-md-2" do %>
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          <% end %>
+          <%= form.submit "Actualizar Tarea", class: "btn btn-warning" do %>
+            <i class="bi bi-check-circle me-1"></i>Actualizar Tarea
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

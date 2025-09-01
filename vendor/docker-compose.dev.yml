@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Base de datos para desarrollo
+  postgres_dev:
+    image: postgres:15-alpine
+    container_name: todolist_postgres_dev
+    environment:
+      POSTGRES_DB: rails_interview_development
+      POSTGRES_USER: rails
+      POSTGRES_PASSWORD: development_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+  # Aplicación Rails en modo desarrollo
+  web_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: todolist_web_dev
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgresql://rails:development_password@postgres_dev:5432/rails_interview_development
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres_dev
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+      - node_modules:/app/node_modules
+    stdin_open: true
+    tty: true
+    command: bundle exec rails server -b 0.0.0.0 -p 3000
+
+  # Redis para desarrollo
+  redis_dev:
+    image: redis:7-alpine
+    container_name: todolist_redis_dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  bundle_cache:
+    driver: local
+  node_modules:
+    driver: local

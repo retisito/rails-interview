@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL (para producción)
+  postgres:
+    image: postgres:15-alpine
+    container_name: todolist_postgres
+    environment:
+      POSTGRES_DB: rails_interview_production
+      POSTGRES_USER: rails
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rails -d rails_interview_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación Rails
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todolist_web
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://rails:${POSTGRES_PASSWORD:-secure_password_123}@postgres:5432/rails_interview_production
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-your_secret_key_base_here}
+      RAILS_SERVE_STATIC_FILES: 'true'
+      RAILS_LOG_TO_STDOUT: 'true'
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - app_storage:/app/storage
+      - app_logs:/app/log
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/todolists"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Sidekiq worker para jobs en background
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todolist_sidekiq
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://rails:${POSTGRES_PASSWORD:-secure_password_123}@postgres:5432/rails_interview_production
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-your_secret_key_base_here}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    volumes:
+      - app_storage:/app/storage
+      - app_logs:/app/log
+    command: ["bundle", "exec", "sidekiq"]
+
+  # Nginx como reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: todolist_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  # Redis para caché (opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: todolist_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_storage:
+    driver: local
+  app_logs:
+    driver: local

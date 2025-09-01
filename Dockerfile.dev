@@ -1,0 +1,38 @@
+# Development Dockerfile
+FROM ruby:3.1-alpine
+
+# Install development dependencies
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    nodejs \
+    npm \
+    git \
+    sqlite-dev \
+    curl \
+    bash \
+    vim
+
+# Set working directory
+WORKDIR /app
+
+# Copy Gemfile and install gems
+COPY Gemfile Gemfile.lock ./
+RUN bundle config set --local path '/usr/local/bundle' && \
+    bundle install --jobs 4 --retry 3
+
+# Create app user (optional for development)
+# RUN addgroup -g 1000 -S rails && \
+#     adduser -u 1000 -S rails -G rails
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p tmp/pids tmp/cache tmp/sockets log
+
+# Expose port
+EXPOSE 3000
+
+# Default command for development
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]

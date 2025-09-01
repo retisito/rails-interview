@@ -1,0 +1,168 @@
+<%= turbo_stream_from "progress_#{@session_id}" %>
+
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3">
+        <i class="bi bi-cpu me-2 text-primary"></i>
+        Procesamiento de Alta Carga
+      </h1>
+      <p class="text-muted mb-0">
+        Lista: <strong><%= @todo_list.name %></strong>
+      </p>
+    </div>
+    <div class="text-end">
+      <%= link_to @todo_list, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Volver a la Lista
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card border-info">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="bi bi-info-circle text-info me-2"></i>
+            Simulación de Proceso Intensivo
+          </h6>
+          <p class="card-text mb-2">
+            Este proceso simula una carga computacional alta que requiere procesamiento en background.
+            Cada tarea pasa por múltiples etapas con delays realistas.
+          </p>
+          <div class="row text-center">
+            <div class="col-4">
+              <div class="border-end">
+                <strong class="text-primary d-block"><%= @todo_list.todo_items.count %></strong>
+                <small class="text-muted">Total Tareas</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="border-end">
+                <strong class="text-warning d-block"><%= @todo_list.todo_items.pending.count %></strong>
+                <small class="text-muted">Pendientes</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <strong class="text-success d-block"><%= @todo_list.todo_items.completed.count %></strong>
+              <small class="text-muted">Completadas</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <div class="card-body text-center">
+          <h6 class="card-title">
+            <i class="bi bi-stopwatch text-secondary me-2"></i>
+            Tiempo Transcurrido
+          </h6>
+          <div class="display-6 text-primary" id="elapsed-time">0s</div>
+          <small class="text-muted">Procesamiento en curso</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Container -->
+  <%= render "shared/progress_bar", 
+      percentage: @initial_progress[:percentage],
+      message: @initial_progress[:message], 
+      current_item: nil,
+      total_items: nil,
+      status: @initial_progress[:status] %>
+
+  <!-- Technical Details -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">
+            <i class="bi bi-gear me-2"></i>
+            Etapas del Procesamiento
+          </h6>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <i class="bi bi-1-circle text-primary me-2"></i>
+              <strong>Validación:</strong> Verificación de datos y permisos
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-2-circle text-primary me-2"></i>
+              <strong>Procesamiento:</strong> Ejecución de lógica de negocio
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-3-circle text-primary me-2"></i>
+              <strong>Finalización:</strong> Guardado y confirmación
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">
+            <i class="bi bi-lightning me-2"></i>
+            Tecnologías Utilizadas
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <span class="badge bg-primary mb-2">Sidekiq</span><br>
+              <span class="badge bg-info mb-2">Active Job</span><br>
+              <span class="badge bg-success mb-2">Turbo Streams</span>
+            </div>
+            <div class="col-6">
+              <span class="badge bg-warning mb-2">Stimulus</span><br>
+              <span class="badge bg-secondary mb-2">Redis</span><br>
+              <span class="badge bg-dark mb-2">Hotwire</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Info for Debugging -->
+  <% if Rails.env.development? %>
+    <div class="mt-4">
+      <details class="border rounded p-3">
+        <summary class="text-muted">
+          <i class="bi bi-bug me-1"></i>
+          Debug Info (Development Only)
+        </summary>
+        <div class="mt-2">
+          <small class="text-muted">
+            <strong>Session ID:</strong> <%= @session_id %><br>
+            <strong>Turbo Stream Channel:</strong> progress_<%= @session_id %><br>
+            <strong>TodoList ID:</strong> <%= @todo_list.id %><br>
+            <strong>Pending Items:</strong> <%= @todo_list.todo_items.pending.count %>
+          </small>
+        </div>
+      </details>
+    </div>
+  <% end %>
+</div>
+
+<!-- Auto-refresh completed message after delay -->
+<script>
+  // Listen for completion and auto-refresh the parent page
+  document.addEventListener('turbo:frame-load', function() {
+    const completedCard = document.querySelector('.border-success');
+    if (completedCard && completedCard.textContent.includes('Completado')) {
+      setTimeout(() => {
+        if (window.opener) {
+          window.opener.location.reload();
+        }
+      }, 3000);
+    }
+  });
+</script>

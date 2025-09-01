@@ -1,0 +1,191 @@
+<% content_for :title, "Procesamiento en Curso - #{@todo_list.name}" %>
+
+<div class="container mt-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <%= link_to "Listas", todo_lists_path, class: "text-decoration-none" %>
+      </li>
+      <li class="breadcrumb-item">
+        <%= link_to @todo_list.name, @todo_list, class: "text-decoration-none" %>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Procesamiento</li>
+    </ol>
+  </nav>
+
+  <!-- Header de la página -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-cpu-fill text-primary me-3 fs-2"></i>
+        <div>
+          <h1 class="h2 mb-1">Procesamiento de Alta Carga</h1>
+          <p class="text-muted mb-0">
+            <strong><%= @todo_list.name %></strong> • Session ID: <code><%= @session_id %></code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Turbo Stream for real-time updates -->
+  <%= turbo_stream_from "progress_#{@session_id}" %>
+  
+  <!-- Debug: Log channel connection -->
+  <script>
+    document.addEventListener('turbo:before-stream-render', function(event) {
+      console.log('🔥 Turbo Stream received:', event.detail);
+    });
+    
+    document.addEventListener('turbo:stream-render', function(event) {
+      console.log('✅ Turbo Stream rendered:', event.detail);
+    });
+  </script>
+
+  <!-- Progress Bar Container -->
+  <div id="progress-container">
+    <%= render 'shared/progress_bar', 
+        percentage: @initial_progress[:percentage],
+        message: @initial_progress[:message],
+        status: @initial_progress[:status],
+        current_item: 0,
+        total_items: @todo_list.todo_items.pending.count %>
+  </div>
+
+  <!-- Initial Loading State -->
+  <div id="initial-loading" class="card border-primary mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        <div class="d-flex align-items-center">
+          <div class="spinner-border spinner-border-sm me-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          Preparando Procesamiento
+        </div>
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <p class="mb-2">
+            <strong>Iniciando job en background...</strong>
+          </p>
+          <p class="text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            El proceso comenzará automáticamente. La barra de progreso aparecerá cuando inicie.
+          </p>
+        </div>
+        <div class="col-md-4 text-center">
+          <div class="bg-light rounded p-3">
+            <div class="fs-2 text-primary mb-2">
+              <%= @todo_list.todo_items.pending.count %>
+            </div>
+            <small class="text-muted">Tareas a procesar</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Cards -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card border-info">
+        <div class="card-header bg-info text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            Información del Proceso
+          </h6>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <i class="bi bi-check2 text-success me-2"></i>
+              <strong>Tecnología:</strong> Active Jobs + Sidekiq
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check2 text-success me-2"></i>
+              <strong>Tiempo real:</strong> Hotwire (Turbo Streams)
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check2 text-success me-2"></i>
+              <strong>Cliente:</strong> Stimulus Controllers
+            </li>
+            <li class="mb-0">
+              <i class="bi bi-check2 text-success me-2"></i>
+              <strong>Cola:</strong> Redis Queue Management
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card border-warning">
+        <div class="card-header bg-warning text-dark">
+          <h6 class="mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Simulación de Carga
+          </h6>
+        </div>
+        <div class="card-body">
+          <p class="mb-2">
+            <strong>Esta es una demostración</strong> que simula un proceso de alta carga computacional.
+          </p>
+          <ul class="list-unstyled mb-0">
+            <li><i class="bi bi-clock me-2 text-muted"></i>Delay simulado por tarea</li>
+            <li><i class="bi bi-cpu me-2 text-muted"></i>Procesamiento en background</li>
+            <li><i class="bi bi-broadcast me-2 text-muted"></i>Updates en tiempo real</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="row">
+    <div class="col">
+      <div class="d-flex gap-3">
+        <%= link_to @todo_list, class: "btn btn-outline-primary" do %>
+          <i class="bi bi-arrow-left me-2"></i>
+          Volver a la Lista
+        <% end %>
+        
+        <%= link_to todo_lists_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-list me-2"></i>
+          Todas las Listas
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Auto-show progress bar when page loads -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Progress page loaded for session:', '<%= @session_id %>');
+    
+    // Show progress bar immediately
+    const initialLoading = document.getElementById('initial-loading');
+    const progressContainer = document.getElementById('progress-container');
+    
+    if (initialLoading && progressContainer) {
+      console.log('✅ Found progress elements, starting transition...');
+      
+      // Hide initial loading after 3 seconds
+      setTimeout(function() {
+        initialLoading.style.transition = 'opacity 0.5s ease-out';
+        initialLoading.style.opacity = '0';
+        
+        setTimeout(() => {
+          initialLoading.style.display = 'none';
+          console.log('✅ Initial loading hidden, progress bar should be visible');
+        }, 500);
+      }, 3000);
+    }
+    
+    // Show debug info
+    console.log('📊 Listening for Turbo Stream updates on channel:', 'progress_<%= @session_id %>');
+  });
+</script>
