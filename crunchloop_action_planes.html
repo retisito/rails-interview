@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Acción - Challenge Crunchloop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .page {
+            min-height: 297mm;
+            padding: 20mm;
+            page-break-after: always;
+        }
+
+        .page:last-child {
+            page-break-after: avoid;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #0066cc;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #0066cc;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .section h3 {
+            color: #495057;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .comparison-table th {
+            background-color: #0066cc;
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .option-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .option-header {
+            background: linear-gradient(135deg, #0066cc, #004499);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .option-content {
+            padding: 20px;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .pros, .cons {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .pros h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .cons h4 {
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pros li::before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cons li::before {
+            content: "✗ ";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .cost-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .cost-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .cost-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .cost-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .gantt-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .gantt-chart {
+            min-width: 800px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .gantt-header {
+            display: grid;
+            grid-template-columns: 250px repeat(12, 1fr);
+            background: #0066cc;
+            color: white;
+            font-weight: bold;
+        }
+
+        .gantt-header div {
+            padding: 10px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .gantt-row {
+            display: grid;
+            grid-template-columns: 250px repeat(12, 1fr);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .gantt-task {
+            padding: 8px;
+            border-right: 1px solid #dee2e6;
+            font-size: 0.9em;
+        }
+
+        .gantt-cell {
+            border-right: 1px solid #dee2e6;
+            position: relative;
+        }
+
+        .gantt-bar {
+            height: 20px;
+            margin: 5px 2px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .phase1 { background: #28a745; }
+        .phase2 { background: #ffc107; color: #000; }
+        .phase3 { background: #dc3545; }
+        .phase4 { background: #6f42c1; }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tech-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .tech-item h4 {
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .recommendation h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            .page {
+                page-break-after: always;
+                min-height: auto;
+            }
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #0066cc;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0066cc;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Página 1: Portada y Resumen Ejecutivo -->
+        <div class="page">
+            <div class="header">
+                <h1>Plan de Acción Estratégico</h1>
+                <div class="subtitle">Challenge Senior Engineer - Crunchloop</div>
+                <div style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                    Sincronización de APIs TodoList | Septiembre 2025 | Retisito (Angel Retali)
+                </div>
+            </div>
+
+            <div class="executive-summary">
+                <h3>📋 Resumen Ejecutivo</h3>
+                <p><strong>Objetivo:</strong> Implementar un sistema de sincronización bidireccional robusto entre una API local TodoList existente (Ruby on Rails) y una API externa, garantizando consistencia de datos, manejo de fallos y optimización de rendimiento.</p>
+                
+                <p><strong>Estado Actual:</strong> Se cuenta con una implementación funcional en Ruby on Rails del API TodoList/TodoItem que servirá como base para la integración.</p>
+                
+                <p><strong>Alcance del Proyecto:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Extensión de la API Rails existente con capacidades de sync</li>
+                    <li>Sincronización bidireccional de TodoLists y TodoItems</li>
+                    <li>Manejo de conflictos y recuperación de errores</li>
+                    <li>Optimización de llamadas API y performance</li>
+                    <li>Sistema de logging, monitoreo y observabilidad</li>
+                    <li>Testing integral y documentación técnica</li>
+                </ul>
+
+                <p><strong>Opciones Evaluadas:</strong> 5 enfoques arquitectónicos, incluyendo una innovadora integración con MCP (Model Context Protocol) para análisis inteligente de patrones de sincronización.</p>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Análisis del Problema</h2>
+                <p>El desafío requiere extender una implementación existente en <strong>Ruby on Rails</strong> del Todo API para agregar capacidades de sincronización bidireccional con las siguientes características críticas:</p>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #dc3545;">
+                    <h4 style="color: #dc3545; margin-bottom: 10px;">🏗️ Contexto Técnico Actual</h4>
+                    <p><strong>Base Existente:</strong> API TodoList/TodoItem implementada en Ruby on Rails</p>
+                    <p><strong>Ventajas:</strong> Ecosistema maduro, ActiveRecord para ORM, gems especializadas para sincronización</p>
+                    <p><strong>Consideraciones:</strong> Aprovechar la arquitectura Rails existente, mantener coherencia con patrones MVC</p>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <h3>Requerimientos Funcionales:</h3>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Sincronización Bidireccional:</strong> Cambios locales → API externa y viceversa</li>
+                        <li><strong>Gestión de CRUD:</strong> Create, Read, Update, Delete para TodoLists e Items</li>
+                        <li><strong>Detección de Cambios:</strong> Identificar modificaciones sin duplicar datos</li>
+                        <li><strong>Resolución de Conflictos:</strong> Manejo de ediciones concurrentes</li>
+                    </ul>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <h3>Requerimientos No Funcionales:</h3>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Resiliencia:</strong> Recuperación automática ante fallos parciales</li>
+                        <li><strong>Performance:</strong> Minimizar llamadas API y optimizar para datasets grandes</li>
+                        <li><strong>Observabilidad:</strong> Logging detallado y métricas de sincronización</li>
+                        <li><strong>Mantenibilidad:</strong> Código limpio, modular y bien documentado</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚡ Desafíos Técnicos Identificados</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <h4>Consistencia Eventual</h4>
+                        <p>Mantener sincronía sin locks distribuidos</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Rate Limiting</h4>
+                        <p>Optimizar frecuencia de sincronización</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Error Recovery</h4>
+                        <p>Reintento inteligente y circuit breaker</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Data Integrity</h4>
+                        <p>Validación y rollback de transacciones</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Página 2: Opciones de Solución -->
+        <div class="page">
+            <div class="section">
+                <h2>🔧 Opciones de Implementación</h2>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        Opción 1: Rails Native Sync (Recomendado para MVP)
+                        <span class="cost-badge cost-low" style="float: right;">💰 Bajo Costo</span>
+                    </div>
+                    <div class="option-content">
+                        <p><strong>Descripción:</strong> Extensión nativa de la aplicación Rails existente usando ActiveJob para sync jobs, Sidekiq para background processing, y gems como <code>sync_client</code> o custom sync logic.</p>
+                        
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✅ Pros</h4>
+                                <ul>
+                                    <li>Aprovecha al máximo la base existente</li>
+                                    <li>Integración natural con ActiveRecord</li>
+                                    <li>Ecosistema Rails maduro y probado</li>
+                                    <li>Deployment simplificado</li>
+                                    <li>Gems especializadas disponibles</li>
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>❌ Contras</h4>
+                                <ul>
+                                    <li>Limitado por single-threaded nature</li>
+                                    <li>Escalabilidad horizontal compleja</li>
+                                    <li>Menor flexibilidad tecnológica</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p><strong>Tecnologías:</strong> Ruby on Rails (existente), Sidekiq, Redis, ActiveJob, HTTParty/Faraday</p>
+                        <p><strong>Tiempo estimado:</strong> 1-1.5 semanas | <strong>Costo:</strong> $1,500 - $2,500</p>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        Opción 2: Rails + Event-Driven con Webhooks
+                        <span class="cost-badge cost-medium" style="float: right;">💰💰 Costo Medio</span>
+                    </div>
+                    <div class="option-content">
+                        <p><strong>Descripción:</strong> Extensión Rails con controladores webhook, ActionCable para real-time updates, y integración con servicios como Zapier o custom webhook handlers.</p>
+                        
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✅ Pros</h4>
+                                <ul>
+                                    <li>Sincronización casi en tiempo real</li>
+                                    <li>Aprovecha ActionCable para WebSockets</li>
+                                    <li>Integración natural with Rails callbacks</li>
+                                    <li>Reducción significativa de API calls</li>
+                                    <li>Mejor user experience</li>
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>❌ Contras</h4>
+                                <ul>
+                                    <li>Requiere endpoint público seguro</li>
+                                    <li>Complejidad en autenticación webhook</li>
+                                    <li>Dependiente de confiabilidad externa</li>
+                                    <li>Debugging más complejo</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p><strong>Tecnologías:</strong> Rails (existente), ActionCable, Puma, Redis, ngrok (dev)</p>
+                        <p><strong>Tiempo estimado:</strong> 2-2.5 semanas | <strong>Costo:</strong> $3,000 - $4,500</p>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        Opción 3: Microservicios Híbridos (Rails + Node.js)
+                        <span class="cost-badge cost-high" style="float: right;">💰💰💰 Alto Costo</span>
+                    </div>
+                    <div class="option-content">
+                        <p><strong>Descripción:</strong> Mantener Rails API como core, agregar microservicio Node.js/Go para sync engine con message queues, aprovechando lo mejor de ambos ecosistemas.</p>
+                        
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✅ Pros</h4>
+                                <ul>
+                                    <li>Preserva inversión Rails existente</li>
+                                    <li>Sync engine de alta performance</li>
+                                    <li>Escalabilidad independiente</li>
+                                    <li>Flexibilidad tecnológica</li>
+                                    <li>Separación clara de responsabilidades</li>
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>❌ Contras</h4>
+                                <ul>
+                                    <li>Complejidad arquitectónica aumentada</li>
+                                    <li>Múltiples stacks tecnológicos</li>
+                                    <li>Comunicación inter-servicios</li>
+                                    <li>Mayor overhead operacional</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p><strong>Tecnologías:</strong> Rails (existente), Node.js/Go, RabbitMQ, PostgreSQL, Docker</p>
+                        <p><strong>Tiempo estimado:</strong> 3.5-5 semanas | <strong>Costo:</strong> $7,000 - $10,000</p>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        Opción 4: Rails Híbrido Inteligente (Recomendado)
+                        <span class="cost-badge cost-medium" style="float: right;">💰💰 Óptimo</span>
+                    </div>
+                    <div class="option-content">
+                        <p><strong>Descripción:</strong> Extensión Rails con Sidekiq Pro, ActiveJob priorities, cache inteligente con Redis, retry logic sofisticado, y arquitectura modular preparada para evolución.</p>
+                        
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✅ Pros</h4>
+                                <ul>
+                                    <li>Balance perfecto costo/beneficio</li>
+                                    <li>Máximo aprovechamiento de Rails existente</li>
+                                    <li>Fácil evolución a arquitecturas complejas</li>
+                                    <li>Robusto manejo de errores nativo</li>
+                                    <li>Performance optimizada con caching</li>
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>❌ Contras</h4>
+                                <ul>
+                                    <li>Requiere diseño cuidadoso de jobs</li>
+                                    <li>Testing más extensivo</li>
+                                    <li>Configuración inicial de Sidekiq Pro</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p><strong>Tecnologías:</strong> Rails (existente), Sidekiq Pro, Redis, ActiveJob, Flipper (feature flags)</p>
+                        <p><strong>Tiempo estimado:</strong> 2-3 semanas | <strong>Costo:</strong> $3,500 - $5,500</p>
+                    </div>
+                </div>
+
+                <div class="option-card" style="border: 2px solid #6f42c1;">
+                    <div class="option-header" style="background: linear-gradient(135deg, #6f42c1, #495057);">
+                        Opción 5: Rails + MCP Integration (Innovador) 🚀
+                        <span class="cost-badge cost-medium" style="float: right; background: #e9ecef; color: #6f42c1;">💰💰 + 🤖</span>
+                    </div>
+                    <div class="option-content">
+                        <p><strong>Descripción:</strong> Extensión Rails con integración MCP (Model Context Protocol) para análisis inteligente de patrones de sincronización, predicción de conflictos, y optimización automática de estrategias sync usando LLMs.</p>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #6f42c1;">
+                            <h4 style="color: #6f42c1; margin-bottom: 10px;">🤖 Características MCP</h4>
+                            <ul style="margin-left: 20px;">
+                                <li><strong>Análisis de Patrones:</strong> LLM analiza logs de sync para identificar patrones problemáticos</li>
+                                <li><strong>Predicción de Conflictos:</strong> Predicción basada en historiales de cambios</li>
+                                <li><strong>Optimización Automática:</strong> Ajuste dinámico de intervalos y estrategias</li>
+                                <li><strong>Insights Inteligentes:</strong> Reportes automáticos sobre health del sistema</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="pros-cons">
+                            <div class="pros">
+                                <h4>✅ Pros</h4>
+                                <ul>
+                                    <li>Diferenciación tecnológica significativa</li>
+                                    <li>Self-healing sync capabilities</li>
+                                    <li>Insights únicos sobre data patterns</li>
+                                    <li>Valor agregado para cliente final</li>
+                                    <li>Demostración de innovación técnica</li>
+                                </ul>
+                            </div>
+                            <div class="cons">
+                                <h4>❌ Contras</h4>
+                                <ul>
+                                    <li>Tecnología emergente (risk)</li>
+                                    <li>Dependencia de LLM APIs</li>
+                                    <li>Complejidad adicional potencial</li>
+                                    <li>Costos de API LLM variables</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p><strong>Tecnologías:</strong> Rails (existente), MCP Protocol, OpenAI/Anthropic API, Sidekiq, Redis, Análisis ML</p>
+                        <p><strong>Tiempo estimado:</strong> 3-4 semanas | <strong>Costo:</strong> $5,000 - $8,000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Página 3: Comparación Técnica y Costos -->
+        <div class="page">
+            <div class="section">
+                <h2>📊 Matriz Comparativa de Soluciones</h2>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Criterio</th>
+                            <th>Rails Native</th>
+                            <th>Rails + Webhooks</th>
+                            <th>Microservicios Híbridos</th>
+                            <th>Rails Híbrido</th>
+                            <th>Rails + MCP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tiempo de Desarrollo</strong></td>
+                            <td>1-1.5 semanas</td>
+                            <td>2-2.5 semanas</td>
+                            <td>3.5-5 semanas</td>
+                            <td>2-3 semanas</td>
+                            <td>3-4 semanas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Costo Total</strong></td>
+                            <td>$1,500-$2,500</td>
+                            <td>$3,000-$4,500</td>
+                            <td>$7,000-$10,000</td>
+                            <td>$3,500-$5,500</td>
+                            <td>$5,000-$8,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aprovecha Rails Existente</strong></td>
+                            <td>Máximo</td>
+                            <td>Alto</td>
+                            <td>Medio</td>
+                            <td>Máximo</td>
+                            <td>Alto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Latencia Sync</strong></td>
+                            <td>30s-5min</td>
+                            <td>&lt;1s</td>
+                            <td>&lt;1s</td>
+                            <td>5-30s</td>
+                            <td>5-30s + Predicción</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resiliencia</strong></td>
+                            <td>Media</td>
+                            <td>Media-Alta</td>
+                            <td>Muy Alta</td>
+                            <td>Alta</td>
+                            <td>Muy Alta + IA</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Innovación Técnica</strong></td>
+                            <td>Básica</td>
+                            <td>Media</td>
+                            <td>Alta</td>
+                            <td>Media</td>
+                            <td>Muy Alta</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complejidad Deployment</strong></td>
+                            <td>Muy Baja</td>
+                            <td>Baja</td>
+                            <td>Alta</td>
+                            <td>Baja</td>
+                            <td>Media</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Escalabilidad</strong></td>
+                            <td>Limitada</td>
+                            <td>Buena</td>
+                            <td>Excelente</td>
+                            <td>Buena</td>
+                            <td>Buena + Inteligente</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>💰 Desglose Detallado de Costos</h3>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Componente</th>
+                            <th>Básico</th>
+                            <th>Event-Driven</th>
+                            <th>Microservicios</th>
+                            <th>Híbrido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Desarrollo Core</strong></td>
+                            <td>$1,500</td>
+                            <td>$2,500</td>
+                            <td>$4,000</td>
+                            <td>$3,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Testing & QA</strong></td>
+                            <td>$300</td>
+                            <td>$800</td>
+                            <td>$2,000</td>
+                            <td>$1,200</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documentación</strong></td>
+                            <td>$200</td>
+                            <td>$400</td>
+                            <td>$800</td>
+                            <td>$500</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DevOps & Deploy</strong></td>
+                            <td>$0</td>
+                            <td>$600</td>
+                            <td>$2,500</td>
+                            <td>$800</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Infraestructura (3 meses)</strong></td>
+                            <td>$0</td>
+                            <td>$300</td>
+                            <td>$1,200</td>
+                            <td>$400</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monitoreo & Logs</strong></td>
+                            <td>$0</td>
+                            <td>$400</td>
+                            <td>$1,500</td>
+                            <td>$600</td>
+                        </tr>
+                        <tr style="font-weight: bold; background: #e9ecef;">
+                            <td><strong>TOTAL</strong></td>
+                            <td><strong>$2,000</strong></td>
+                            <td><strong>$5,000</strong></td>
+                            <td><strong>$12,000</strong></td>
+                            <td><strong>$6,500</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🛠️ Stack Tecnológico Detallado</h3>
+
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <h4>Backend Framework</h4>
+                        <p><strong>Recomendado:</strong> Node.js + TypeScript<br>
+                        <em>Alternativas:</em> Python FastAPI, .NET Core</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Base de Datos</h4>
+                        <p><strong>Recomendado:</strong> PostgreSQL<br>
+                        <em>Alternativas:</em> MySQL, SQLite (dev)</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Cache & Queues</h4>
+                        <p><strong>Recomendado:</strong> Redis + Bull<br>
+                        <em>Alternativas:</em> RabbitMQ, Apache Kafka</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>Monitoring</h4>
+                        <p><strong>Recomendado:</strong> Winston + Prometheus<br>
+                        <em>Alternativas:</em> ELK Stack, New Relic</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       

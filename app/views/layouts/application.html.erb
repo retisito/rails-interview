@@ -58,7 +58,12 @@
       <div class="container">
         <%= link_to "TodoList App", root_path, class: "navbar-brand" %>
         <div class="navbar-nav ms-auto">
-          <%= link_to "Todas las Listas", todo_lists_path, class: "nav-link" %>
+          <%= link_to todo_lists_path, class: "nav-link" do %>
+            <i class="bi bi-list-check"></i> Todas las Listas
+          <% end %>
+          <%= link_to sync_dashboard_path, class: "nav-link" do %>
+            <i class="bi bi-arrow-repeat"></i> Sync Dashboard
+          <% end %>
         </div>
       </div>
     </nav>

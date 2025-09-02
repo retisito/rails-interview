@@ -1,0 +1,408 @@
+<% content_for :title, "Dashboard de Sincronización" %>
+
+<!-- Turbo Stream para actualizaciones en tiempo real -->
+<%= turbo_stream_from "sync_notifications" %>
+<%= turbo_stream_from "api_health_status" %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h2">
+      <i class="bi bi-arrow-repeat text-primary me-2"></i>
+      Dashboard de Sincronización
+    </h1>
+    <p class="text-muted mb-0">
+      <i class="bi bi-info-circle me-1"></i>
+      Monitoreo y control de sincronización bidireccional con API externa
+    </p>
+  </div>
+  
+  <div class="d-flex gap-2">
+    <%= link_to sync_dashboard_stats_path, class: "btn btn-outline-info" do %>
+      <i class="bi bi-graph-up me-1"></i>Estadísticas
+    <% end %>
+    <%= link_to sync_dashboard_api_health_path, class: "btn btn-outline-success" do %>
+      <i class="bi bi-heart-pulse me-1"></i>Health Check
+    <% end %>
+  </div>
+</div>
+
+<!-- Estado de API Externa -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div id="external_api_status" class="card border-<%= @api_health[:status] == 'healthy' ? 'success' : 'danger' %>">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-1">
+              <i class="bi bi-<%= @api_health[:status] == 'healthy' ? 'check-circle-fill text-success' : 'x-circle-fill text-danger' %> me-2"></i>
+              API Externa
+            </h5>
+            <p class="card-text text-muted mb-0">
+              Estado: <strong class="text-<%= @api_health[:status] == 'healthy' ? 'success' : 'danger' %>">
+                <%= @api_health[:status] == 'healthy' ? 'Saludable' : 'Con Problemas' %>
+              </strong>
+              <% if @api_health[:latency] %>
+                | Latencia: <strong><%= @api_health[:latency] %>ms</strong>
+              <% end %>
+            </p>
+          </div>
+          <div>
+            <% if @api_health[:error] %>
+              <span class="badge bg-danger">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Error
+              </span>
+            <% else %>
+              <span class="badge bg-success">
+                <i class="bi bi-check-circle me-1"></i>
+                Operacional
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Métricas Principales -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card bg-primary text-white">
+      <div class="card-body text-center">
+        <i class="bi bi-list-ul display-4 mb-2"></i>
+        <h3 class="mb-1"><%= @total_todo_lists %></h3>
+        <p class="mb-0">Listas Totales</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-success text-white">
+      <div class="card-body text-center">
+        <i class="bi bi-arrow-repeat display-4 mb-2"></i>
+        <h3 class="mb-1"><%= @sync_enabled_lists %></h3>
+        <p class="mb-0">Sync Habilitado</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-warning text-white">
+      <div class="card-body text-center">
+        <i class="bi bi-clock display-4 mb-2"></i>
+        <h3 class="mb-1"><%= @lists_needing_sync %></h3>
+        <p class="mb-0">Pendientes Sync</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card bg-info text-white">
+      <div class="card-body text-center">
+        <i class="bi bi-exclamation-triangle display-4 mb-2"></i>
+        <h3 class="mb-1"><%= @pending_conflicts.count %></h3>
+        <p class="mb-0">Conflictos Pendientes</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Estadísticas de Sincronización -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-graph-up text-success me-2"></i>
+          Estadísticas de Sync
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-4">
+            <div class="border-end">
+              <h4 class="text-success mb-1"><%= @sync_stats[:completed_sessions] %></h4>
+              <small class="text-muted">Completadas</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="border-end">
+              <h4 class="text-danger mb-1"><%= @sync_stats[:failed_sessions] %></h4>
+              <small class="text-muted">Fallidas</small>
+            </div>
+          </div>
+          <div class="col-4">
+            <h4 class="text-info mb-1"><%= @sync_stats[:running_sessions] %></h4>
+            <small class="text-muted">En Curso</small>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <div class="d-flex justify-content-between">
+          <small class="text-muted">Tasa de Éxito:</small>
+          <strong class="text-success"><%= @sync_stats[:success_rate] %>%</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <small class="text-muted">Duración Promedio:</small>
+          <strong><%= (@sync_stats[:average_duration] || 0).round(1) %>s</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+          Resolución de Conflictos
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Conflictos Pendientes:</span>
+          <span class="badge bg-warning fs-6"><%= @sync_stats[:pending_conflicts] %></span>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Auto-Resolución:</span>
+          <span class="badge bg-success fs-6"><%= @sync_stats[:auto_resolution_rate] %>%</span>
+        </div>
+        
+        <div class="d-grid">
+          <%= button_to sync_dashboard_auto_resolve_conflicts_path, 
+                        method: :post,
+                        class: "btn btn-outline-success btn-sm",
+                        confirm: "¿Intentar resolver conflictos automáticamente?" do %>
+            <i class="bi bi-magic me-1"></i>Auto-Resolver
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Listas de TodoList con controles de Sync -->
+<div class="card mb-4">
+  <div class="card-header bg-light">
+    <h5 class="card-title mb-0">
+      <i class="bi bi-list-check text-primary me-2"></i>
+      Control de Sincronización por Lista
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Lista</th>
+            <th>Estado Sync</th>
+            <th>Última Sync</th>
+            <th>Items</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% TodoList.includes(:todo_items).order(:name).each do |todo_list| %>
+            <tr>
+              <td>
+                <%= link_to todo_list_path(todo_list), class: "text-decoration-none" do %>
+                  <strong><%= todo_list.name %></strong>
+                <% end %>
+                <% if todo_list.external_id %>
+                  <br><small class="text-muted">ID Externo: <%= todo_list.external_id %></small>
+                <% end %>
+              </td>
+              
+              <td>
+                <span class="badge bg-<%= todo_list.sync_status_color %> d-flex align-items-center" style="width: fit-content;">
+                  <i class="bi bi-<%= todo_list.sync_status_icon %> me-1"></i>
+                  <%= todo_list.sync_status.humanize %>
+                </span>
+              </td>
+              
+              <td>
+                <% if todo_list.synced_at %>
+                  <%= time_ago_in_words(todo_list.synced_at) %> ago
+                  <br><small class="text-muted"><%= todo_list.synced_at.strftime("%d/%m %H:%M") %></small>
+                <% else %>
+                  <span class="text-muted">Nunca</span>
+                <% end %>
+              </td>
+              
+              <td>
+                <span class="badge bg-secondary"><%= todo_list.todo_items.count %></span>
+                <% if todo_list.sync_enabled? %>
+                  <% pending_sync = todo_list.todo_items.needs_sync.count %>
+                  <% if pending_sync > 0 %>
+                    <span class="badge bg-warning ms-1"><%= pending_sync %> pendientes</span>
+                  <% end %>
+                <% end %>
+              </td>
+              
+              <td>
+                <div class="btn-group" role="group">
+                  <% if todo_list.sync_enabled? %>
+                    <!-- Botón de Sincronizar -->
+                    <%= button_to sync_dashboard_trigger_sync_path(todo_list), 
+                                  method: :post,
+                                  params: { strategy: 'incremental_sync' },
+                                  class: "btn btn-success btn-sm",
+                                  title: "Sincronizar ahora" do %>
+                      <i class="bi bi-arrow-repeat"></i>
+                    <% end %>
+                    
+                    <!-- Botón de Deshabilitar -->
+                    <%= button_to sync_dashboard_disable_sync_path(todo_list), 
+                                  method: :post,
+                                  class: "btn btn-outline-danger btn-sm",
+                                  confirm: "¿Deshabilitar sincronización?",
+                                  title: "Deshabilitar sync" do %>
+                      <i class="bi bi-pause-circle"></i>
+                    <% end %>
+                  <% else %>
+                    <!-- Botón de Habilitar -->
+                    <%= button_to sync_dashboard_enable_sync_path(todo_list), 
+                                  method: :post,
+                                  class: "btn btn-outline-success btn-sm",
+                                  title: "Habilitar sync" do %>
+                      <i class="bi bi-play-circle"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Sesiones Recientes -->
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-clock-history text-info me-2"></i>
+          Sesiones Recientes
+        </h5>
+        <%= link_to sync_dashboard_sessions_path, class: "btn btn-outline-info btn-sm" do %>
+          Ver Todas <i class="bi bi-arrow-right"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @recent_sessions.any? %>
+          <div class="list-group list-group-flush">
+            <% @recent_sessions.each do |session| %>
+              <div class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                  <strong><%= session.todo_list.name %></strong>
+                  <br>
+                  <small class="text-muted">
+                    <i class="bi bi-calendar me-1"></i>
+                    <%= session.started_at.strftime("%d/%m/%Y %H:%M") %>
+                    | 
+                    <i class="bi bi-clock me-1"></i>
+                    <%= session.duration_in_words %>
+                    |
+                    <i class="bi bi-gear me-1"></i>
+                    <%= session.strategy.humanize %>
+                  </small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-<%= session.status == 'completed' ? 'success' : session.status == 'failed' ? 'danger' : 'info' %> mb-1">
+                    <%= session.status.humanize %>
+                  </span>
+                  <% if session.status == 'completed' %>
+                    <br>
+                    <small class="text-success">
+                      <i class="bi bi-check-circle me-1"></i>
+                      <%= session.success_rate %>% éxito
+                    </small>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-inbox display-4 mb-2"></i>
+            <p>No hay sesiones de sincronización recientes</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+          Conflictos Pendientes
+        </h5>
+        <%= link_to sync_dashboard_conflicts_path, class: "btn btn-outline-warning btn-sm" do %>
+          Ver Todos <i class="bi bi-arrow-right"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @pending_conflicts.any? %>
+          <div class="list-group list-group-flush">
+            <% @pending_conflicts.each do |conflict| %>
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <strong class="text-danger"><%= conflict.conflict_type.humanize %></strong>
+                    <br>
+                    <small class="text-muted">
+                      <%= conflict.sync_session.todo_list.name %>
+                      | <%= conflict.time_since_created %>
+                    </small>
+                  </div>
+                  <div>
+                    <% if conflict.auto_resolvable? %>
+                      <span class="badge bg-success">Auto</span>
+                    <% else %>
+                      <span class="badge bg-warning">Manual</span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center text-muted py-3">
+            <i class="bi bi-check-circle display-4 mb-2 text-success"></i>
+            <p>No hay conflictos pendientes</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notificaciones en tiempo real -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+  <div id="sync_notifications_list">
+    <!-- Las notificaciones aparecerán aquí via Turbo Streams -->
+  </div>
+</div>
+
+<script>
+  // Auto-refresh cada 30 segundos
+  setInterval(() => {
+    if (document.visibilityState === 'visible') {
+      console.log('🔄 Auto-refreshing sync dashboard...');
+      // Turbo.visit(window.location, { action: 'replace' });
+    }
+  }, 30000);
+  
+  // Mostrar notificación cuando hay nuevos datos
+  document.addEventListener('turbo:before-stream-render', (event) => {
+    console.log('📡 Receiving sync update:', event.detail);
+  });
+</script>

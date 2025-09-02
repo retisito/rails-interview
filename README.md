@@ -39,6 +39,14 @@ This is a comprehensive Todo List application built in Ruby on Rails 7, featurin
 - **PostgreSQL** for production database
 - **Redis** for caching and job queues
 
+### ✅ **Bidirectional Sync System** 🆕
+- **Complete sync engine** for external API integration
+- **Conflict resolution** with multiple strategies
+- **Real-time dashboard** for monitoring and control
+- **Background job processing** with Sidekiq
+- **External API client** with error handling and retry logic
+- **Comprehensive tracking** of sync sessions and conflicts
+
 ## 📋 **Quick Start**
 
 ### Prerequisites
@@ -70,6 +78,8 @@ bundle exec sidekiq
 ### Access the Application
 - **Web Interface**: http://localhost:3000
 - **API Base URL**: http://localhost:3000/api
+- **Sync Dashboard**: http://localhost:3000/sync_dashboard 🆕
+- **API Health Check**: http://localhost:3000/sync_dashboard/api_health 🆕
 - **Sidekiq Web UI**: http://localhost:3000/sidekiq
 
 ## 🔧 **Technical Implementation Details**
@@ -263,6 +273,135 @@ curl -X POST http://localhost:3000/api/todolists/1/todos \
 # Auto-complete all items (background job)
 curl -X POST http://localhost:3000/api/todolists/1/auto_complete
 ```
+
+## 🔄 **Bidirectional Sync System** 🆕
+
+### **Overview**
+This application includes a complete bidirectional synchronization system that demonstrates enterprise-level integration patterns. The system is based on the **Crunchloop Action Plan** and implements the **Rails Hybrid Intelligent** approach.
+
+### **Key Components**
+
+#### **1. Sync Engine (`app/services/sync_engine.rb`)**
+- **Bidirectional sync** between local and external APIs
+- **Conflict detection** and resolution strategies
+- **Change tracking** with checksums for optimization
+- **Error handling** with automatic retry logic
+
+#### **2. External API Client (`app/services/external_api_client.rb`)**
+- **HTTP client** with comprehensive error handling
+- **Rate limiting** and retry mechanisms
+- **Health checks** and connectivity monitoring
+- **Simulation mode** for development and testing
+
+#### **3. Background Processing (`app/jobs/bidirectional_sync_job.rb`)**
+- **Sidekiq integration** for async processing
+- **Retry strategies** with exponential backoff
+- **Performance monitoring** and metrics collection
+- **Real-time notifications** via Turbo Streams
+
+#### **4. Conflict Resolution (`app/models/conflict_resolution_task.rb`)**
+- **Multiple resolution strategies**: `last_write_wins`, `merge_changes`, `manual_resolution`
+- **Auto-resolution** for simple conflicts
+- **Manual review** for complex conflicts
+- **Priority scoring** and queue management
+
+#### **5. Sync Dashboard (`app/controllers/sync_dashboard_controller.rb`)**
+- **Real-time monitoring** of sync operations
+- **Control interface** for enabling/disabling sync per list
+- **Conflict management** and resolution tools
+- **Performance metrics** and health monitoring
+
+### **Sync Strategies**
+
+| Strategy | Description | Use Case |
+|----------|-------------|----------|
+| `incremental_sync` | Sync only changed items | Regular updates |
+| `full_sync` | Complete data synchronization | Initial setup |
+| `batch_sync` | Process multiple changes together | Bulk operations |
+| `real_time_sync` | Immediate sync on changes | Critical updates |
+
+### **Conflict Resolution Strategies**
+
+| Strategy | Description | When to Use |
+|----------|-------------|-------------|
+| `last_write_wins` | Use most recent timestamp | Simple conflicts |
+| `merge_changes` | Combine both versions | Text conflicts |
+| `external_priority` | External API wins | External source of truth |
+| `local_priority` | Local changes win | Local source of truth |
+| `manual_resolution` | Human intervention required | Complex conflicts |
+
+### **Usage Examples**
+
+#### **Enable Sync for a TodoList**
+```ruby
+# In Rails console
+list = TodoList.find(1)
+list.enable_sync!(external_id: "ext_list_123")
+```
+
+#### **Trigger Manual Sync**
+```ruby
+# Trigger sync with specific strategy
+list.trigger_sync!(
+  strategy: 'incremental_sync',
+  conflict_resolution: 'last_write_wins'
+)
+```
+
+#### **Check Sync Status**
+```ruby
+# Get sync statistics
+stats = list.sync_stats
+puts "Status: #{stats[:status]}"
+puts "Last synced: #{stats[:last_synced]}"
+puts "Needs sync: #{stats[:needs_sync]}"
+```
+
+#### **Resolve Conflicts**
+```ruby
+# Auto-resolve pending conflicts
+ConflictResolutionTask.auto_resolve_pending!
+
+# Manual resolution
+conflict = ConflictResolutionTask.pending.first
+conflict.manual_resolve!(
+  { description: "Merged description", completed: true },
+  resolved_by: "admin"
+)
+```
+
+### **Dashboard Features**
+
+#### **Real-time Monitoring**
+- **API Health Status** with latency metrics
+- **Sync Statistics** with success rates
+- **Active Sessions** and their progress
+- **Pending Conflicts** requiring attention
+
+#### **Control Interface**
+- **Enable/Disable Sync** per TodoList
+- **Trigger Manual Sync** with strategy selection
+- **Conflict Resolution** tools
+- **Performance Metrics** and analytics
+
+#### **URLs**
+- **Main Dashboard**: http://localhost:3000/sync_dashboard
+- **API Health**: http://localhost:3000/sync_dashboard/api_health
+- **Statistics**: http://localhost:3000/sync_dashboard/stats
+- **Sessions**: http://localhost:3000/sync_dashboard/sessions
+- **Conflicts**: http://localhost:3000/sync_dashboard/conflicts
+
+### **Demo Data**
+Run the demo data script to see the sync system in action:
+```bash
+rails runner db/seeds_sync_demo.rb
+```
+
+This creates:
+- **3 TodoLists** with sync enabled
+- **Sample sync sessions** (completed, failed, running)
+- **Conflict examples** for testing resolution
+- **External API simulation** data
 
 ## 🛠️ **Technology Stack**
 
